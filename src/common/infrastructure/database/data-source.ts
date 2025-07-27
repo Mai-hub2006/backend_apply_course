@@ -10,7 +10,7 @@ import { StudentEducationOrmEntity } from './typeorms/entities/student-education
 
 config(); // ໂຫຼດຈາກ .env
 export const dataSource = new DataSource({
-  type: 'mysql', // ຖ້າເປັນ mySQL ກໍ່ໃຊ້ 'mysql'
+  type: 'postgres', // ຖ້າເປັນ mySQL ກໍ່ໃຊ້ 'mysql'
   host: process.env.DB_HOST || 'localhost',
   port: Number(process.env.DB_PORT) || 3306,
   username: process.env.DB_USERNAME || '',
