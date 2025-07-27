@@ -92,7 +92,7 @@ export class AppController {
     return await this._studentService.getAllStudent(query);
   }
 
-  @Put('students/:id')
+  @Put('student/:id')
   async updateStudent(
     @Param('id') id: number,
     @Body() body: UpdateStudentDto,

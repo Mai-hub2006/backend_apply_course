@@ -17,10 +17,19 @@ import { GetAllCategoryDto } from './dto/query.dto';
 import { CourseOrmEntity } from 'src/common/infrastructure/database/typeorms/entities/course.orm';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
+import { PaginationDto } from 'src/common/pagination/dto/pagination.dto';
+import {StatusDto } from './dto/status.dto';
 
 @Controller('course')
 export class CourseController {
   constructor(private readonly _courseService: CourseService) {}
+
+  @Get('get-all')
+  getAll(
+    @Query() query: PaginationDto,
+  ): Promise<PaginatedResponse<CourseOrmEntity>> {
+    return this._courseService.getallCourse(query);
+  }
 
   /** CRUD Course */
   @Post('create-course')
@@ -40,6 +49,14 @@ export class CourseController {
   async deleteCourse(@Param('id') id: number): Promise<void> {
     return await this._courseService.deleteCourse(id);
   }
+
+@Put('update-status/:id')
+async updateStatus(
+  @Param('id') id: number,
+  @Body() body: StatusDto,
+): Promise<CourseOrmEntity> {
+  return await this._courseService.updateCourseStatus(id, body);
+}
 
   /** CRUD Course Category */
   @Get('categories')

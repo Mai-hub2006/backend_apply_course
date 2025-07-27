@@ -24,6 +24,20 @@ export class TeacherService {
     private readonly dataSource: DataSource,
   ) {}
 
+async getAllTeachers(): Promise<TeacherOrmEntity[]> {
+    try {
+      const help = await this._teacherRepository.find({
+        relations: ['user'],
+      });
+      console.log(help);
+      return help;
+
+    } catch (error) {
+      console.error('Error fetching all teachers:', error);
+      throw new BadRequestException('Failed to fetch teachers');
+    }
+  }
+
   async createTeacher(body: CreateTeacherDto): Promise<TeacherOrmEntity> {
     try {
       const savedTeacher =
@@ -120,5 +134,17 @@ export class TeacherService {
       console.error(error);
       throw error;
     }
+  }
+  async getTeacher(id: number): Promise<TeacherOrmEntity> {
+    const teacher = await this._teacherRepository.findOne({
+      where: { id },
+      relations: ['user'],
+    });
+
+    if (!teacher) {
+      throw new NotFoundException(`Teacher with ID ${id} not found`);
+    }
+
+    return teacher;
   }
 }

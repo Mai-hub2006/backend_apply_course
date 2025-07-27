@@ -29,6 +29,6 @@ import { MailModule } from './common/infrastructure/mailer/mail.module';
     },
     AppService,
   ],
-  exports: [],
+  exports: [AppService],
 })
 export class AppModule {}

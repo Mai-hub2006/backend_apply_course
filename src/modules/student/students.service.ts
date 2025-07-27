@@ -62,7 +62,7 @@ export class StudentService {
             });
 
             /** Send Email */
-            await this._mailService.sendEmail(body.email, body.name);
+            // await this._mailService.sendEmail(body.email, body.name);
 
             return await manager.save(StudentOrmEntity, student);
           },

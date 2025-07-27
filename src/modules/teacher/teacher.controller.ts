@@ -9,7 +9,7 @@ export class TeacherController {
   constructor(private readonly _teacherService: TeacherService) {}
   @Get('get-all')
   getAll() {
-    return 'paovang';
+    return this._teacherService.getAllTeachers();
   }
 
   @Post('create-teacher')
@@ -25,5 +25,10 @@ export class TeacherController {
     @Body() body: UpdateTeacherDto,
   ): Promise<TeacherOrmEntity> {
     return await this._teacherService.updateTeacher(id, body);
+  }
+
+  @Get('get-teacher/:id')
+  async getTeacher(@Param('id') id: number): Promise<TeacherOrmEntity> {
+    return await this._teacherService.getTeacher(id);
   }
 }

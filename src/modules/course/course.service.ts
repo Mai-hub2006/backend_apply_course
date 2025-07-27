@@ -14,6 +14,9 @@ import {
 } from 'src/common/infrastructure/database/typeorms/entities/course.orm';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
+import { PaginationDto } from 'src/common/pagination/dto/pagination.dto';
+import { StartupSnapshot } from 'v8';
+import { StatusDto } from './dto/status.dto';
 
 @Injectable()
 export class CourseService {
@@ -24,6 +27,36 @@ export class CourseService {
     private _course: Repository<CourseOrmEntity>,
   ) {}
 
+
+  async getallCourse(
+    query: PaginationDto,
+  ): Promise<PaginatedResponse<CourseOrmEntity>> {
+    const page = Number(query.page) || 1;
+    const limit = Number(query.limit) || 10;
+
+    const queryBuilder = this._course.createQueryBuilder('course')
+    .leftJoinAndSelect('course.teacher', 'teacher')
+    // .leftJoinAndSelect('teacher', 'user')
+    .leftJoinAndSelect('course.category', 'category')
+    ;
+
+    return paginateQueryBuilder(queryBuilder, page, limit);
+  }
+
+  // updated Status
+  updatedStatus = async (
+    id: number, 
+    body: StatusDto
+  ): Promise<CourseOrmEntity> => {
+    const course = await this._course.findOne({
+      where: { id },
+    });
+    if (!course) {
+      throw new NotFoundException(`Course with ID ${id} not found`);
+    }
+    course.status = (body.status as CourseStatus) || CourseStatus; // Default to OPEN if not provided
+    return await this._course.save(course);
+  }
   /** CRUD Course */
   async createCourse(body: CreateCourseDto): Promise<CourseOrmEntity> {
     try {
@@ -39,7 +72,7 @@ export class CourseService {
         start_date: new Date(body.start_date),
         end_date: new Date(body.end_date),
         description: body.description,
-        status: CourseStatus.OPEN,
+        // status: body.status || CourseStatus.OPEN, // Default to OPEN if not provided
       });
 
       const savedCourse = await this._course.save(course);
@@ -91,6 +124,20 @@ export class CourseService {
     }
   }
 
+  async updateCourseStatus(
+    id: number,
+    body: StatusDto,
+  ): Promise<CourseOrmEntity> {
+    const course = await this._course.findOne({
+      where: { id },
+    });
+    if (!course) {
+      throw new NotFoundException(`Course with ID ${id} not found`);
+    }
+    course.status = (body.status as CourseStatus) || CourseStatus.OPEN; // Default to OPEN if not provided
+    return await this._course.save(course);
+  }
+
   /** CRUD Course Category */
   async getAllCategory(
     query: GetAllCategoryDto,
@@ -106,6 +153,11 @@ export class CourseService {
   async createCategory(
     body: CreateCourseCategoryDto,
   ): Promise<CourseCategoryOrmEntity> {
+    // Limit category creation to max 5 items
+    // const count = await this._courseCategory.count();
+    // if (count >= 5) {
+    //   throw new BadRequestException('can not create more than 5 categories');
+    // }
     const checkName = await this._courseCategory.findOne({
       where: { name: body.name },
     });
